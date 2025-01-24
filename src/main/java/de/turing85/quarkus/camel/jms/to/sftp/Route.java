@@ -7,9 +7,9 @@ import de.turing85.quarkus.camel.jms.to.sftp.config.RouteConfig;
 import lombok.RequiredArgsConstructor;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.builder.endpoint.dsl.SftpEndpointBuilderFactory;
 
 import static org.apache.camel.builder.endpoint.StaticEndpointBuilders.jms;
+import static org.apache.camel.builder.endpoint.StaticEndpointBuilders.sftp;
 
 @ApplicationScoped
 @RequiredArgsConstructor
@@ -18,7 +18,6 @@ public class Route extends RouteBuilder {
 
   private final ConnectionFactory connectionFactory;
   private final RouteConfig routeConfig;
-  private final SftpEndpointBuilderFactory.SftpEndpointProducerBuilder sftpEndpoint;
 
   @Override
   public void configure() {
@@ -32,7 +31,12 @@ public class Route extends RouteBuilder {
                 .setHeader(Exchange.FILE_NAME, header(HEADER_FILE_NAME))
         .end()
         .log("Writing content \"${body}\" to file \"${header.%s}\"".formatted(Exchange.FILE_NAME))
-        .to(sftpEndpoint)
+        .to(sftp(routeConfig.sftp().uploadPath())
+            .username(routeConfig.sftp().username())
+            .password(routeConfig.sftp().password())
+            .useUserKnownHostsFile(false)
+            .serverHostKeys("ssh-rsa")
+            .knownHostsUri("classpath:known_hosts"))
         .log("Done!");
     // @formatter:on
   }

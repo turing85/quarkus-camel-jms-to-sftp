@@ -7,10 +7,13 @@ import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import io.quarkus.logging.Log;
+import io.quarkus.test.common.DevServicesContext;
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
@@ -19,18 +22,30 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
-public class SftpTestContainer implements QuarkusTestResourceLifecycleManager {
-  public static final DockerImageName IMAGE =
+public class SftpTestContainer
+    implements QuarkusTestResourceLifecycleManager, DevServicesContext.ContextAware {
+  public static final DockerImageName CONTAINER_IMAGE =
       DockerImageName.parse("atmoz/sftp").withTag("alpine-3.7").withRegistry("docker.io");
+  public static final int SFTP_PORT = 22;
   public static final String SFTP_USER = "sftp-user";
   public static final String SFTP_PASSWORD = "sftp-pass";
+
+  private static final String CONTAINER_NAME = "sftp";
 
   @Nullable
   private static GenericContainer<?> container;
 
+  @Nullable
+  private static String containerNetworkId;
+
   @Getter
   @Nullable
   private static Path temporaryDirectory;
+
+  @Override
+  public void setIntegrationTestContext(DevServicesContext context) {
+    containerNetworkId = context.containerNetworkId().orElse(null);
+  }
 
   @Override
   public Map<String, String> start() {
@@ -42,7 +57,7 @@ public class SftpTestContainer implements QuarkusTestResourceLifecycleManager {
           PosixFilePermissions.fromString("rwxrwxrwx"));
 
       // @formatter:off
-      container = new GenericContainer<>(IMAGE)
+      container = new GenericContainer<>(CONTAINER_IMAGE)
           .withEnv(Map.of("SFTP_USERS", "%s:%s:1001".formatted(SFTP_USER, SFTP_PASSWORD)))
           .withFileSystemBind(
               temporaryDirectory.toString(),
@@ -54,11 +69,17 @@ public class SftpTestContainer implements QuarkusTestResourceLifecycleManager {
           .withCopyToContainer(
               MountableFile.forClasspathResource("ssh_host_rsa_key"),
               "/etc/ssh/ssh_host_rsa_key")
-          .withExposedPorts(22);
+          .withExposedPorts(SFTP_PORT)
+          .withCreateContainerCmdModifier(command -> command.withName(CONTAINER_NAME));
+      Optional.ofNullable(containerNetworkId).ifPresent(container::withNetworkMode);
       container.start();
-      final int sftpPort = container.getMappedPort(22);
+      // @formatter:on
+      final int port =
+          Objects.isNull(containerNetworkId) ? container.getMappedPort(SFTP_PORT) : SFTP_PORT;
+      final String host = Objects.isNull(containerNetworkId) ? "localhost" : CONTAINER_NAME;
+      // @formatter:off
       return Map.of(
-          "route.sftp.url", "localhost:%d".formatted(sftpPort),
+          "route.sftp.url", "%s:%d".formatted(host, port),
           "route.sftp.username", SFTP_USER,
           "route.sftp.password", SFTP_PASSWORD);
       // @formatter:on
@@ -75,9 +96,9 @@ public class SftpTestContainer implements QuarkusTestResourceLifecycleManager {
 
   private static void deleteTemporaryDirectoryIfPresent() {
     if (temporaryDirectory != null) {
-      try (Stream<Path> fileStream = Files.walk(temporaryDirectory)) {
+      try (final Stream<Path> fileStream = Files.walk(temporaryDirectory)) {
         // @formatter:off
-        boolean allDeleted = fileStream
+        final boolean allDeleted = fileStream
             .sorted(Comparator.reverseOrder())
             .map(Path::toFile)
             .map(File::delete)
@@ -92,5 +113,16 @@ public class SftpTestContainer implements QuarkusTestResourceLifecycleManager {
         throw new RuntimeException(e);
       }
     }
+  }
+
+  @Override
+  public void inject(TestInjector testInjector) {
+    // @formatter:off
+    testInjector.injectIntoFields(
+        Optional.ofNullable(temporaryDirectory)
+            .orElseThrow(() ->
+                new IllegalStateException("temporary directory has not yet been initialized.")),
+        new TestInjector.AnnotatedAndMatchesType(InjectSftpRoot.class, Path.class));
+    // @formatter:on
   }
 }
