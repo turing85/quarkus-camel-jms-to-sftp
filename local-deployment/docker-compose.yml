@@ -1,0 +1,23 @@
+services:
+  sftp:
+    image: docker.io/atmoz/sftp:alpine-3.7
+    env_file:
+      - ./.env
+    ports:
+      - '2222:22'
+    volumes:
+      - ./sftp/upload:/home/${SFTP_USER}/upload
+      - ./sftp/etc/ssh/ssh_host_ed25519_key:/etc/ssh/ssh_host_ed25519_key:ro
+      - ./sftp/etc/ssh/ssh_host_rsa_key:/etc/ssh/ssh_host_rsa_key:ro
+  jms:
+    image: quay.io/arkmq-org/activemq-artemis-broker:artemis.2.39.0
+    env_file:
+      - ./.env
+    environment:
+      - AMQ_EXTRA_ARGS=--nio --relax-jolokia
+    ports:
+      - '8161:8161'
+      - '61616:61616'
+      - '5672:5672'
+
+

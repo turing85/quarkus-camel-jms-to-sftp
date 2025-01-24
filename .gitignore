@@ -1,4 +1,6 @@
 target/
 .idea/
 
+local-deployment/sftp/upload
+
 *.iml
