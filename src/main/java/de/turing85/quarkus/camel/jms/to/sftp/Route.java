@@ -35,8 +35,7 @@ public class Route extends RouteBuilder {
             .username(routeConfig.sftp().username())
             .password(routeConfig.sftp().password())
             .useUserKnownHostsFile(false)
-            .serverHostKeys("ssh-rsa")
-            .knownHostsUri("classpath:known_hosts"))
+            .serverHostKeys("ssh-rsa"))
         .log("Done!");
     // @formatter:on
   }

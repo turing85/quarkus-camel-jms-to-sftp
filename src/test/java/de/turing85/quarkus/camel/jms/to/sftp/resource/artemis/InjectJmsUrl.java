@@ -1,4 +1,4 @@
-package de.turing85.quarkus.camel.jms.to.sftp.resource;
+package de.turing85.quarkus.camel.jms.to.sftp.resource.artemis;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,5 +7,5 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.PARAMETER})
-public @interface InjectSftpRoot {
+public @interface InjectJmsUrl {
 }

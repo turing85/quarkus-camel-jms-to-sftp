@@ -429,6 +429,7 @@
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.google.truth</groupId>
@@ -439,6 +440,7 @@
         <dependency>
             <groupId>io.quarkiverse.artemis</groupId>
             <artifactId>quarkus-test-artemis</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
