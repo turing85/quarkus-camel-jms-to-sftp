@@ -13,8 +13,12 @@ import org.testcontainers.utility.DockerImageName;
 
 public class ArtemisTestContainer
     implements QuarkusTestResourceLifecycleManager, DevServicesContext.ContextAware {
+  // @formatter:off
   public static final DockerImageName CONTAINER_IMAGE = DockerImageName
-      .parse("arkmq-org/activemq-artemis-broker").withTag("artemis.2.39.0").withRegistry("quay.io");
+      .parse("arkmq-org/activemq-artemis-broker")
+      .withTag("artemis.2.39.0")
+      .withRegistry("quay.io");
+  // @formatter:on
   public static final int JMS_PORT = 61616;
   public static final String JMS_USER = "jms-user";
   public static final String JMS_PASSWORD = "jms-pass";
@@ -29,7 +33,6 @@ public class ArtemisTestContainer
 
   @Nullable
   private static Integer mappedJmsPort;
-
 
   @Override
   public void setIntegrationTestContext(DevServicesContext context) {

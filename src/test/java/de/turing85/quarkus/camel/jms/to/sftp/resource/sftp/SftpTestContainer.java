@@ -24,8 +24,12 @@ import org.testcontainers.utility.MountableFile;
 
 public class SftpTestContainer
     implements QuarkusTestResourceLifecycleManager, DevServicesContext.ContextAware {
-  public static final DockerImageName CONTAINER_IMAGE =
-      DockerImageName.parse("atmoz/sftp").withTag("alpine-3.7").withRegistry("docker.io");
+  // @formatter:off
+  public static final DockerImageName CONTAINER_IMAGE = DockerImageName
+      .parse("atmoz/sftp")
+      .withTag("alpine-3.7")
+      .withRegistry("docker.io");
+  // @formatter:on
   public static final int SFTP_PORT = 22;
   public static final String SFTP_USER = "sftp-user";
   public static final String SFTP_PASSWORD = "sftp-pass";
@@ -117,10 +121,11 @@ public class SftpTestContainer
         if (!allDeleted) {
           Log.warnf("Unable to delete %s", temporaryDirectory);
         }
-        temporaryDirectory = null;
         // @formatter:on
       } catch (IOException e) {
         throw new RuntimeException(e);
+      } finally {
+        temporaryDirectory = null;
       }
     }
   }

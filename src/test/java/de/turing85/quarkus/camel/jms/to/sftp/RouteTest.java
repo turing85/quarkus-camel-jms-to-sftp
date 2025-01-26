@@ -42,7 +42,7 @@ class RouteTest {
     final String fileName = "HelloWorld.txt";
 
     // when
-    send(bodyToSend, fileName);
+    sendJmsMessage(bodyToSend, fileName);
 
     // then
     // @formatter:off
@@ -54,7 +54,7 @@ class RouteTest {
     Truth.assertThat(Files.readString(actualFile)).isEqualTo(bodyToSend);
   }
 
-  private void send(final String messageBody, final String fileName) throws JMSException {
+  private void sendJmsMessage(final String messageBody, final String fileName) throws JMSException {
     final String username = ConfigProvider.getConfig()
         .getOptionalValue("quarkus.artemis.username", String.class).orElse(null);
     final String password = ConfigProvider.getConfig()
