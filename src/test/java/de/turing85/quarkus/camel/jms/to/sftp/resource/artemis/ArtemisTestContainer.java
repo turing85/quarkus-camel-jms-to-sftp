@@ -16,7 +16,7 @@ public class ArtemisTestContainer
   // @formatter:off
   public static final DockerImageName CONTAINER_IMAGE = DockerImageName
       .parse("arkmq-org/activemq-artemis-broker")
-      .withTag("artemis.2.39.0")
+      .withTag("artemis.2.53.0")
       .withRegistry("quay.io");
   // @formatter:on
   public static final int JMS_PORT = 61616;
