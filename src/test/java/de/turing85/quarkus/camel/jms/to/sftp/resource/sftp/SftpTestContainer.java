@@ -36,6 +36,9 @@ public class SftpTestContainer
 
   private static final String CONTAINER_NAME = "sftp";
 
+  @SuppressWarnings("OctalInteger")
+  private static final int PERMISSION_READ_ONLY_USER = 0600;
+
   @Nullable
   private static GenericContainer<?> container;
 
@@ -75,10 +78,10 @@ public class SftpTestContainer
             "/home/%s/upload".formatted(SFTP_USER),
             BindMode.READ_WRITE)
         .withCopyToContainer(
-            MountableFile.forClasspathResource("ssh_host_ed25519_key"),
+            MountableFile.forClasspathResource("ssh_host_ed25519_key", PERMISSION_READ_ONLY_USER),
             "/etc/ssh/ssh_host_ed25519_key")
         .withCopyToContainer(
-            MountableFile.forClasspathResource("ssh_host_rsa_key"),
+            MountableFile.forClasspathResource("ssh_host_rsa_key", PERMISSION_READ_ONLY_USER),
             "/etc/ssh/ssh_host_rsa_key")
         .withExposedPorts(SFTP_PORT)
         .withCreateContainerCmdModifier(command -> command.withName(CONTAINER_NAME))
