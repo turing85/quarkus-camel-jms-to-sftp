@@ -1,6 +1,6 @@
 services:
   sftp:
-    image: docker.io/atmoz/sftp:alpine-3.7
+    image: docker.io/atmoz/sftp:alpine
     env_file:
       - ./.env
     ports:
