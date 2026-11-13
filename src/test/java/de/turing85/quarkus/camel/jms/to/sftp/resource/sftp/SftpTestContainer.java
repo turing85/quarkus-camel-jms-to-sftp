@@ -27,7 +27,7 @@ public class SftpTestContainer
   // @formatter:off
   public static final DockerImageName CONTAINER_IMAGE = DockerImageName
       .parse("atmoz/sftp")
-      .withTag("alpine-3.7")
+      .withTag("alpine")
       .withRegistry("docker.io");
   // @formatter:on
   public static final int SFTP_PORT = 22;
